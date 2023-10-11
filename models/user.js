@@ -1,5 +1,27 @@
 const mongoose = require ('mongoose')
 
+//Defining selleer Profile and explaining field specific
+const sellerProfileSchema = new mongoose.Schema({
+    name: {
+            type:String,
+            required: [true, "Please provide your seller Pofile name"],
+            minlegth: 3,
+            maxlenght: 20,
+    },
+
+    sellerDescription: {
+        type: String,
+        required:[true, "Please provide a seller description"],
+        maxlenght: 500,
+    },
+
+    sellerRating:{
+        type:Number,
+        min: 0,
+        max: 5,
+    },
+})
+//Definining UserSchema with embedded Seller Profile
 const UserSchema = new mongoose.UserSchema({
     name: {
                 type:String,
@@ -19,7 +41,14 @@ const UserSchema = new mongoose.UserSchema({
     password: {
                 type:String,
                 required: [true, 'Please provide a password'],
-                minlenght: 6,
+                minlenght: 8,
+                maxlenght: 16,
     },
-
-})
+    isSeller: {
+        type: Boolean,
+        default: false,
+    },
+    sellerProfile: sellerProfileSchema
+});
+    const User = mongoose.model('User', UserSchema)
+module.exports = User;
