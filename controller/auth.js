@@ -1,12 +1,7 @@
-//Authentication for Login and REGISTRATION
+const User = require('../models/user');
+const { StatusCodes } = require('http-status-codes');
+const { BadRequestError } = require('../errors');
 
-const { BadRequestError, UnauthenticatedError } = require('../errors')
-const User = require('../models/user')
-const { StatusCodes } = require('http-status-codes')
-
-const User = require('./path-to-your-user-model'); // Import your User model
-
-// Example: Create a user who is a seller
 const createUserWithSellerProfile = async () => {
   try {
     // Create a new user instance
@@ -14,10 +9,10 @@ const createUserWithSellerProfile = async () => {
       name: 'Seller User',
       email: 'seller@example.com',
       password: 'password123',
-      isSeller: true, // Set to true to indicate the user is a seller
+      isSeller: true,
       sellerProfile: {
         sellerDescription: 'This is a seller description.',
-        sellerRating: 4.5, // Set the seller's rating
+        sellerRating: 4.5,
       },
     });
 
@@ -30,8 +25,39 @@ const createUserWithSellerProfile = async () => {
 };
 createUserWithSellerProfile();
 
+const register = async (req, res) => {
+  try {
+    // Extract user registration data from the request body
+    const { name, 
+            email, 
+            password, 
+            isSeller 
+          } = req.body;
 
-const register = async( req, res) => {
-    const user = await User.create({...req.body})
+  
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      throw new BadRequestError('Email already registered');
+    }
+
+    // Create a new user instance
+    const newUser = new User({ 
+      name,
+       email, 
+       password, 
+       isSeller,
+       });
+    const savedUser = await newUser.save();
+
     
-}
+    const token = savedUser.createJwt();//implement token
+    res.status(StatusCodes.CREATED).json({ User: { name: savedUser.name }, token });
+  } catch (error) {
+    res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+  }
+};
+
+module.exports = {
+  register,
+};
