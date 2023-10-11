@@ -1,4 +1,5 @@
 const mongoose = require ('mongoose')
+const validator = require ('validator');
 
 //Defining selleer Profile and explaining field specific
 const sellerProfileSchema = new mongoose.Schema({
@@ -44,9 +45,19 @@ const UserSchema = new mongoose.UserSchema({
                 minlenght: 8,
                 maxlenght: 16,
     },
+    
     isSeller: {
         type: Boolean,
         default: false,
+    },
+    phone: {
+                type: String,
+                validate:{
+                    validator: (value) =>{
+                        return validator.isMobilePhone(value, 'any', {strictMode: false})
+                    },
+                    message: 'Invalid Phone Number Format'
+                }
     },
     sellerProfile: sellerProfileSchema
 });

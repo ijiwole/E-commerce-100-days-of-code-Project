@@ -1,6 +1,6 @@
 const User = require('../models/user');
 const { StatusCodes } = require('http-status-codes');
-const { BadRequestError } = require('../errors');
+const { BadRequestError, UnauthenticatedError } = require('../errors');
 
 const createUserWithSellerProfile = async () => {
   try {
@@ -26,7 +26,7 @@ const createUserWithSellerProfile = async () => {
 createUserWithSellerProfile();
 
 const register = async (req, res) => {
-  try {
+  
     // Extract user registration data from the request body
     const { name, 
             email, 
@@ -40,7 +40,7 @@ const register = async (req, res) => {
     if (existingUser) {
       throw new BadRequestError('Email already registered');
     }
-
+        
     // Create a new user instance
     const newUser = new User({ 
       name,
@@ -49,15 +49,25 @@ const register = async (req, res) => {
        isSeller,
        });
     const savedUser = await newUser.save();
-
-    
-    const token = savedUser.createJwt();//implement token
-    res.status(StatusCodes.CREATED).json({ User: { name: savedUser.name }, token });
-  } catch (error) {
-    res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
-  }
+  
 };
+// to generate and send JWT tokens to the client after a succesful registration
+const token = jwt.sign({UserId: savedUser._id }, process.env.JWT_SECRET)
+    res.status(StatusCodes.CREATED).json({ User: { name: savedUser.name }, token });
+    
+    res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
 
-module.exports = {
-  register,
+    const login = async (req, res) => {
+      const { email, password, phone} = req.body
+      if (
+        !email ||!password ||!phone
+      ){
+        throw new BadRequestError('Please provide email or phone number and password')
+      //to be continued
+      }
+    }
+
+module.exports = { 
+  register, 
+  login,
 };
