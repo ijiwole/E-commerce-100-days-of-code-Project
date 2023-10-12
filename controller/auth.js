@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const { StatusCodes } = require('http-status-codes');
 const { BadRequestError, UnauthenticatedError } = require('../errors');
+const validator = require('validator')
 
 const createUserWithSellerProfile = async () => {
   try {
@@ -51,20 +52,37 @@ const register = async (req, res) => {
     const savedUser = await newUser.save();
   
 };
-// to generate and send JWT tokens to the client after a succesful registration
-const token = jwt.sign({UserId: savedUser._id }, process.env.JWT_SECRET)
-    res.status(StatusCodes.CREATED).json({ User: { name: savedUser.name }, token });
-    
-    res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
 
-    const login = async (req, res) => {
-      const { email, password, phone} = req.body
-      if (
-        !email ||!password ||!phone
-      ){
-        throw new BadRequestError('Please provide email or phone number and password')
-      //to be continued
-      }
+const login = async (req, res) => {
+  const { identifier, password } = req.body
+  //checking if the identifier is an email or phone number
+  const isEmail = validator.isEmail(identifier)
+  //used to check whether the user is using email or phone number to login 
+  const query = isEmail ? { email: identifier } : { phone: identifier}
+  
+      try {
+        //find user based on email or phone number
+        const user = await User.findOne(query);
+        if(!user){
+          throw new BadRequestError('Invalid Credentials')
+          }
+
+        //verifying the password
+        const isPasswordCorrect = await user.checkPassword(password)
+          if(!isPasswordCorrect) {
+            throw new BadRequestError('Invalid Credentials')
+          }
+          // to generate and send JWT tokens to the client after a succesful registration
+          const token = jwt.sign({UserId: savedUser._id }, process.env.JWT_SECRET)
+          res.status(StatusCodes.CREATED).json({ User: { name: savedUser.name }, token });
+          
+        } catch (error) {
+          
+        }
+          res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+      
+      
+      
     }
 
 module.exports = { 

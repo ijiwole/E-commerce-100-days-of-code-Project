@@ -6,7 +6,7 @@ const { authenticateUser } = require('../middleware/authentication')
 router.post('/register', register)
 router.post('/login', login)
 
-//protected route that rrequires autht=entication
+//protected route that rrequires authtentication
 router.get('/protected', authenticateUser, (req, res) => {
     res.json({ msg: 'You have access to this protected route!', user: req.user})
 })
