@@ -1,14 +1,15 @@
 const express = require('express');
 const router = express.Router()
-const { register, login } = require('../controller/auth')
-const { authenticateUser } = require('../middleware/authentication')
+const { register, login, createUserWithSellerProfile } = require('../controller/auth')
+const authenticateUser = require('../middleware/authentication')
 //public route for user registration: [No authentication needed]
 router.post('/register', register)
 router.post('/login', login)
+router.post('/create', createUserWithSellerProfile)
 
 //protected route that rrequires authtentication
 router.get('/protected', authenticateUser, (req, res) => {
-    res.json({ msg: 'You have access to this protected route!', user: req.user})
-})
+     res.json({ msg: 'You have access to this protected route!', user: req.user})
+ })
 
 module.exports = router 

@@ -1,11 +1,11 @@
-const User = require('../models/user')
+ const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 const { UnauthenticatedError} = require('../errors')
 
 const auth = async (req, res, next) =>{
     //check header
     const authHeader = req.headers.authorization
-    if(!authHeader || !authHeader.startWith('Bearer')){
+    if(!authHeader || !authHeader.startWith('Bearer ')){
         throw new UnauthenticatedError('Authentication token invalid')
     }
         const token = authHeader.split(' ')[ 1 ]

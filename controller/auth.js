@@ -3,17 +3,17 @@ const { StatusCodes } = require('http-status-codes');
 const { BadRequestError, UnauthenticatedError } = require('../errors');
 const validator = require('validator')
 
-const createUserWithSellerProfile = async () => {
+ const createUserWithSellerProfile = async () => {
   try {
     // Create a new user instance
     const user = new User({
-      name: 'Seller User',
-      email: 'seller@example.com',
-      password: 'password123',
+      name,
+      email,
+      password,
       isSeller: true,
       sellerProfile: {
-        sellerDescription: 'This is a seller description.',
-        sellerRating: 4.5,
+        sellerDescription,
+        sellerRating,
       },
     });
 
@@ -24,7 +24,6 @@ const createUserWithSellerProfile = async () => {
     console.error('Error creating user:', error);
   }
 };
-createUserWithSellerProfile();
 
 const register = async (req, res) => {
   
@@ -88,4 +87,5 @@ const login = async (req, res) => {
 module.exports = { 
   register, 
   login,
+  createUserWithSellerProfile,
 };
