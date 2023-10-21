@@ -1,5 +1,8 @@
 const mongoose = require('mongoose')
 const validator = require('validator');
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+
 
 //Defining selleer Profile and explaining field specific
 const sellerProfileSchema = new mongoose.Schema({
@@ -51,7 +54,7 @@ const UserSchema = new mongoose.Schema({
 
     isSeller: {
         type: Boolean,
-        default: false,
+        required: [true, 'Please provide details']
     },
     phone: {
         type: String,
@@ -62,7 +65,25 @@ const UserSchema = new mongoose.Schema({
             message: 'Invalid Phone Number Format'
         }
     },
-    // sellerProfile: sellerProfileSchema
+    
 });
+    UserSchema.pre('save', async function () {
+        const salt = await bcrypt.genSalt(10)
+        this.password = await bcrypt.hash(this.password, salt)
+    })
+
+    UserSchema.methods.createJwt = function(){
+        return jwt.sign({userId: this._id, name: this.name}, 'jwtSecret',
+        {
+            expiresIn: process.env.JWT_LIFETIME
+        })
+    }
+
+    UserSchema.methods.checkPassword = async function (candidatePassword){
+        const isMatch = await bcrypt.compare(candidatePassword, this.password)
+        return isMatch
+    }
+
+
 const User = mongoose.model('User', UserSchema)
 module.exports = User;

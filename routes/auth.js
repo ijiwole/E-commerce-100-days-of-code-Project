@@ -5,7 +5,7 @@ const authenticateUser = require('../middleware/authentication')
 //public route for user registration: [No authentication needed]
 router.post('/register', register)
 router.post('/login', login)
-router.post('/create', createUserWithSellerProfile)
+
 
 //protected route that rrequires authtentication
 router.get('/protected', authenticateUser, (req, res) => {
